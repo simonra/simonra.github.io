@@ -1,0 +1,20 @@
+header{
+	color: black;
+	font-family: Georgia, serif;
+	font-size: 1.3em;
+	margin-top: 0.2em;
+	text-align: center;
+}
+/*Unvisited style:*/
+header a:link{
+	color: black;
+}
+/*Visited style*/
+header a:visited{
+	color: black;
+}
+header a:active{
+}
+header a:hover{
+	color: #0c80e8;
+}
