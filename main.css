@@ -1,0 +1,23 @@
+body{
+	font-size: 20pt;
+	margin: 2em;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+td, th {
+	border: 1px solid black;
+	padding: 0.5em;
+	text-align: left;
+}
+/*While list is short, only give header special look. Once list expands, consider coloring alternate lines to make easier to follow.*/
+th{
+	background-color: #dddddd;
+}
+/*
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+*/
