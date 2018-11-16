@@ -21,3 +21,9 @@ tr:nth-child(even) {
 	background-color: #dddddd;
 }
 */
+
+@media (max-width: 60em){
+	body{
+		margin: 0.5em;
+	}
+}
