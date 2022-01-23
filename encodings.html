@@ -26,6 +26,16 @@
             document.getElementById('output_area').value = '';
         }
 
+        function CopyOutput() {
+            var content = document.getElementById('output_area').value;
+            // document.execCommand("copy");
+            navigator.clipboard.writeText(content).then(function() {
+            /* clipboard successfully set */
+            }, function() {
+            /* clipboard write failed */
+            });
+        }
+
         function Base64Encode() {
             var input = document.getElementById('input_area').value;
             var utf8Array = Base64Utilities.strToUTF8Arr(input);
@@ -259,9 +269,18 @@
             <button onclick="ClearAll()">All</button>
             <button onclick="ClearOutput()">Output</button>
         </fieldset>
+        <button onclick="CopyOutput()">
+            <span style="position: relative; font-size: 1.3rem;">
+                📋
+                <span style="position: absolute; top: .4rem; left: .6rem; font-size: 1rem;">
+                    ↩
+                </span>
+            </span>
+        </button>
     </fieldset>
 
     <h1><label for="output_area">Output</label></h1>
     <textarea disabled id="output_area" name="output_area" rows="20" cols="80"></textarea>
 </body>
 </html>
+
