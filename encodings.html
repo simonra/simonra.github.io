@@ -212,13 +212,16 @@
 
                 return aBytes;
             }
+
+            /* Expose functions needed outside module*/
+
             return{
                 strToUTF8Arr:strToUTF8Arr,
                 UTF8ArrToStr:UTF8ArrToStr,
                 base64EncArr:base64EncArr,
-                uint6ToB64:uint6ToB64,
                 base64DecToArr:base64DecToArr,
-                b64ToUint6:b64ToUint6
+                // uint6ToB64:uint6ToB64,
+                // b64ToUint6:b64ToUint6
             }
         }();
 
