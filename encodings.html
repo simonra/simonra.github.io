@@ -15,7 +15,15 @@
         fieldset {
             display: inline-block;
         }
+        #copy_status {
+            color: darkgreen;
+            font-size: 11pt;
+            font-weight: normal;
+            opacity: 0;
+            user-select: none;
+        }
         @keyframes FadeOut {
+            /* For animation for copy status text */
             from { opacity: 1; }
             to   { opacity: 0; }
         }
@@ -34,12 +42,21 @@
             var content = document.getElementById('output_area').value;
             // document.execCommand("copy");
             navigator.clipboard.writeText(content).then(function() {
-                var element = document.getElementById('successfully_copied');
+                /* clipboard write succeeded */
+                var element = document.getElementById('copy_status');
+                element.textContent = 'Output copied to clipboard';
+                element.style.color = 'darkgreen';
                 element.style.animation = 'none';
                 element.offsetHeight; /* trigger reflow */
                 element.style.animation = "FadeOut ease 3.14s";
             }, function() {
-            /* clipboard write failed */
+                /* clipboard write failed */
+                var element = document.getElementById('copy_status');
+                element.textContent = 'Failed to copy output to clipboard';
+                element.style.color = 'darkred';
+                element.style.animation = 'none';
+                element.offsetHeight; /* trigger reflow */
+                element.style.animation = "FadeOut ease 3.14s";
             });
         }
 
@@ -290,17 +307,7 @@
 
     <h1>
         <label for="output_area">Output</label>
-        <span
-            style="
-                color: darkgreen;
-                font-size: 10pt;
-                font-weight: normal;
-                opacity: 0;
-                user-select: none;
-                "
-            id="successfully_copied">
-            Output copied to clipboard
-        </span>
+        <span id="copy_status">Output copied to clipboard</span>
     </h1>
     <textarea disabled id="output_area" name="output_area" rows="20" cols="80"></textarea>
 </body>
