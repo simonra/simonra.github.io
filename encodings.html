@@ -15,6 +15,10 @@
         fieldset {
             display: inline-block;
         }
+        @keyframes FadeOut {
+            from { opacity: 1; }
+            to   { opacity: 0; }
+        }
     </style>
     <script>
         function ClearAll() {
@@ -30,7 +34,10 @@
             var content = document.getElementById('output_area').value;
             // document.execCommand("copy");
             navigator.clipboard.writeText(content).then(function() {
-            /* clipboard successfully set */
+                var element = document.getElementById('successfully_copied');
+                element.style.animation = 'none';
+                element.offsetHeight; /* trigger reflow */
+                element.style.animation = "FadeOut ease 3.14s";
             }, function() {
             /* clipboard write failed */
             });
@@ -281,7 +288,20 @@
         </button>
     </fieldset>
 
-    <h1><label for="output_area">Output</label></h1>
+    <h1>
+        <label for="output_area">Output</label>
+        <span
+            style="
+                color: darkgreen;
+                font-size: 10pt;
+                font-weight: normal;
+                opacity: 0;
+                user-select: none;
+                "
+            id="successfully_copied">
+            Output copied to clipboard
+        </span>
+    </h1>
     <textarea disabled id="output_area" name="output_area" rows="20" cols="80"></textarea>
 </body>
 </html>
