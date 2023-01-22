@@ -38,6 +38,18 @@
             document.getElementById('output_area').value = '';
         }
 
+        function RemoveNewlinesFromInput() {
+            var originalContent = document.getElementById('input_area').value;
+            var contentWithoutNewlines = originalContent.replaceAll("\r","").replaceAll("\n", "");
+            document.getElementById('input_area').value = contentWithoutNewlines;
+        }
+
+        function RemoveNewlinesFromOutput() {
+            var originalContent = document.getElementById('output_area').value;
+            var contentWithoutNewlines = originalContent.replaceAll("\r","").replaceAll("\n", "");
+            document.getElementById('output_area').value = contentWithoutNewlines;
+        }
+
         function CopyOutput() {
             var content = document.getElementById('output_area').value;
             // document.execCommand("copy");
@@ -287,6 +299,11 @@
             <legend>URL encoding</legend>
             <button onclick="UrlEncode()">Encode</button>
             <button onclick="UrlDecode()">Decode</button>
+        </fieldset>
+        <fieldset>
+            <legend>Remove newlines</legend>
+            <button onclick="RemoveNewlinesFromInput()">Input</button>
+            <button onclick="RemoveNewlinesFromOutput()">Output</button>
         </fieldset>
         <fieldset>
             <legend>Clear</legend>
