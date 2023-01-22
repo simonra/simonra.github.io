@@ -40,14 +40,19 @@
 
         function RemoveNewlinesFromInput() {
             var originalContent = document.getElementById('input_area').value;
-            var contentWithoutNewlines = originalContent.replaceAll("\r","").replaceAll("\n", "");
-            document.getElementById('input_area').value = contentWithoutNewlines;
+            document.getElementById('input_area').value = RemoveNewlines(originalContent);
         }
 
         function RemoveNewlinesFromOutput() {
             var originalContent = document.getElementById('output_area').value;
-            var contentWithoutNewlines = originalContent.replaceAll("\r","").replaceAll("\n", "");
-            document.getElementById('output_area').value = contentWithoutNewlines;
+            document.getElementById('output_area').value = RemoveNewlines(originalContent);
+        }
+
+        function RemoveNewlines(inputString){
+            // Regex might be slightly more efficient, but this feels more readable
+            return inputString
+                .replaceAll("\r","")
+                .replaceAll("\n", "");
         }
 
         function CopyOutput() {
