@@ -57,25 +57,68 @@
 
         function CopyOutput() {
             var content = document.getElementById('output_area').value;
-            // document.execCommand("copy");
-            navigator.clipboard.writeText(content).then(function() {
-                /* clipboard write succeeded */
+            ClipboardUtilities.CopyToClipboard(content);
+        }
+
+        ClipboardUtilities = function () {
+            function CopyToClipboard(textToCopy) {
+                // Support for non-navigator clipboard copying when not over https:// or file:// based on https://stackoverflow.com/a/65996386/2890086
+                // navigator clipboard api needs a secure context (https)
+                if (navigator.clipboard && window.isSecureContext) {
+                    // navigator clipboard api method'
+                    return navigator
+                        .clipboard
+                        .writeText(textToCopy)
+                        .then(
+                            ShowClipboardCopySuccessMessage,
+                            ShowClipboardCopyFailureMessage
+                        );
+                } else {
+                    // text area method
+                    console.log("Using text area with exec");
+                    textArea.value = textToCopy;
+                    // make the textarea out of viewport
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    textArea.style.top = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    return new Promise(
+                        (res, rej) => {
+                            // here the magic happens
+                            document.execCommand('copy') ? res() : rej();
+                            textArea.remove();
+                        }).then(
+                            ShowClipboardCopySuccessMessage,
+                            ShowClipboardCopyFailureMessage
+                        );
+                }
+            }
+
+            const ShowClipboardCopySuccessMessage = function () {
                 var element = document.getElementById('copy_status');
                 element.textContent = 'Output copied to clipboard';
                 element.style.color = 'darkgreen';
                 element.style.animation = 'none';
                 element.offsetHeight; /* trigger reflow */
                 element.style.animation = "FadeOut ease 3.14s";
-            }, function() {
-                /* clipboard write failed */
+            }
+
+            const ShowClipboardCopyFailureMessage = function () {
                 var element = document.getElementById('copy_status');
                 element.textContent = 'Failed to copy output to clipboard';
                 element.style.color = 'darkred';
                 element.style.animation = 'none';
                 element.offsetHeight; /* trigger reflow */
                 element.style.animation = "FadeOut ease 3.14s";
-            });
-        }
+            }
+
+            /* Expose functions needed outside module*/
+            return {
+                CopyToClipboard:CopyToClipboard,
+            }
+        }();
 
         function Base64Encode() {
             var input = document.getElementById('input_area').value;
