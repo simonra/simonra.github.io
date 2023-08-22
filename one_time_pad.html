@@ -10,8 +10,12 @@
             flex-direction: row;
             flex-wrap: wrap;
         }
-        h1 {
+        .copy_button {
+            margin-left: 1em;
+        }
+        h2 {
             font-size: 12pt;
+            display: inline;
         }
         textarea {
             display: block;
@@ -20,7 +24,7 @@
         fieldset {
             display: inline-block;
         }
-        #copy_status {
+        #action_status {
             color: darkgreen;
             font-size: 11pt;
             font-weight: normal;
@@ -47,8 +51,16 @@
                 .replaceAll("\n", "");
         }
 
-        function CopyOutput() {
-            var content = document.getElementById('output_area').value;
+        function CopyUnencrypted() {
+            var content = document.getElementById('unencrypted_area').value;
+            ClipboardUtilities.CopyToClipboard(content);
+        }
+        function CopyOneTimePad() {
+            var content = document.getElementById('one_time_pad_area').value;
+            ClipboardUtilities.CopyToClipboard(content);
+        }
+        function CopyEncrypted() {
+            var content = document.getElementById('encrypted_area').value;
             ClipboardUtilities.CopyToClipboard(content);
         }
 
@@ -89,8 +101,8 @@
             }
 
             const ShowClipboardCopySuccessMessage = function () {
-                var element = document.getElementById('copy_status');
-                element.textContent = 'Output copied to clipboard';
+                var element = document.getElementById('action_status');
+                element.textContent = 'Copied to clipboard';
                 element.style.color = 'darkgreen';
                 element.style.animation = 'none';
                 element.offsetHeight; /* trigger reflow */
@@ -98,8 +110,8 @@
             }
 
             const ShowClipboardCopyFailureMessage = function () {
-                var element = document.getElementById('copy_status');
-                element.textContent = 'Failed to copy output to clipboard';
+                var element = document.getElementById('action_status');
+                element.textContent = 'Failed to copy to clipboard';
                 element.style.color = 'darkred';
                 element.style.animation = 'none';
                 element.offsetHeight; /* trigger reflow */
@@ -197,20 +209,6 @@
             var enc = new TextEncoder(); // always utf-8
             var unencryptedUint8Array = enc.encode(unencrypted);
             return unencryptedUint8Array;
-        }
-
-        function Base64Encode() {
-            var input = document.getElementById('input_area').value;
-            var utf8Array = Base64Utilities.strToUTF8Arr(input);
-            var encoded = Base64Utilities.base64EncArr(utf8Array);
-            document.getElementById('output_area').value = encoded;
-        }
-
-        function Base64Decode() {
-            var input = document.getElementById('input_area').value;
-            var utf8Array = Base64Utilities.base64DecToArr(input);
-            var decoded = Base64Utilities.UTF8ArrToStr(utf8Array);
-            document.getElementById('output_area').value = decoded;
         }
 
         Base64Utilities = function() {
@@ -401,9 +399,9 @@
 <body>
     <div class="all_text_areas_wrapper">
         <div class="title_and_text_area_wrapper">
-            <h1><label for="unencrypted_area">Unencrypted</label></h1>
+            <h2><label for="unencrypted_area">Unencrypted</label></h2>
 
-            <button onclick="CopyUnencrypted()" title="Copy unencrypted to clipboard.">
+            <button onclick="CopyUnencrypted()" title="Copy unencrypted to clipboard." class="copy_button">
                 <span style="position: relative; font-size: 1.3rem;">
                     <!-- Clipboard icon, &ClearOutput#128203; -->
                     📋
@@ -419,9 +417,9 @@
         </div>
 
         <div class="title_and_text_area_wrapper">
-            <h1><label for="one_time_pad_area">One Time Pad</label></h1>
+            <h2><label for="one_time_pad_area">One Time Pad</label></h2>
 
-            <button onclick="CopyOneTimePad()" title="Copy one time pad to clipboard.">
+            <button onclick="CopyOneTimePad()" title="Copy one time pad to clipboard." class="copy_button">
                 <span style="position: relative; font-size: 1.3rem;">
                     <!-- Clipboard icon, &ClearOutput#128203; -->
                     📋
@@ -438,9 +436,9 @@
         </div>
 
         <div class="title_and_text_area_wrapper">
-            <h1><label for="encrypted_area">Encrypted</label></h1>
+            <h2><label for="encrypted_area">Encrypted</label></h2>
 
-            <button onclick="CopyEncrypted()" title="Copy encrypted to clipboard.">
+            <button onclick="CopyEncrypted()" title="Copy encrypted to clipboard." class="copy_button">
                 <span style="position: relative; font-size: 1.3rem;">
                     <!-- Clipboard icon, &ClearOutput#128203; -->
                     📋
@@ -454,6 +452,7 @@
             <textarea id="encrypted_area" name="encrypted_area" rows="20" cols="60"></textarea>
         </div>
     </div>
+    <span id="action_status">status</span><br>
     <fieldset>
         <legend>Actions</legend>
         <button onclick="EncryptWithOtp()">Encrypt with OTP</button>
