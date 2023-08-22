@@ -75,7 +75,7 @@
             element.style.color = 'darkorange';
             element.style.animation = 'none';
             element.offsetHeight; /* trigger reflow */
-            element.style.animation = "FadeOut ease 5s";
+            element.style.animation = "FadeOut ease 10s";
         }
 
         function CopyUnencrypted() {
@@ -189,7 +189,7 @@
 
             var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
             if(otpUint8Array.length != unencryptedAsUint8Array.length){
-                throw new Error("Unencrypted input and OTP length don't match");
+                throw new Error("Unencrypted input and OTP length don't match, something is awfully wrong");
             }
 
             var encryptedAsUint8Array = new Uint8Array(unencryptedAsUint8Array.length);
@@ -221,8 +221,14 @@
             }
 
             var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
-            if(otpUint8Array.length != unencryptedAsUint8Array.length){
-                throw new Error("Unencrypted input and OTP length don't match");
+            if(otpUint8Array.length != unencryptedAsUint8Array.length) {
+                if(otpUint8Array.length > unencryptedAsUint8Array.length) {
+                    console.warn(`OTP length (${otpUint8Array.length} bytes) is longer than unencrypted message, only using first ${unencryptedAsUint8Array.length} bytes of OTP.`);
+                    ShowWarningMessage(`OTP length (${otpUint8Array.length}) is longer than unencrypted message, only using first ${unencryptedAsUint8Array.length} bytes of OTP.`);
+                } else {
+                    ShowFailureMessage("OTP must be same size as unencrypted message or longer.");
+                    throw new Error("OTP must be same size as unencrypted message or longer.");
+                }
             }
 
             var encryptedAsUint8Array = new Uint8Array(unencryptedAsUint8Array.length);
