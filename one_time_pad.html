@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Time Pad (OTP)</title>
+    <style>
+        .all_text_areas_wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+        h1 {
+            font-size: 12pt;
+        }
+        textarea {
+            display: block;
+            max-width: 97%;
+        }
+        fieldset {
+            display: inline-block;
+        }
+        #copy_status {
+            color: darkgreen;
+            font-size: 11pt;
+            font-weight: normal;
+            opacity: 0;
+            user-select: none;
+        }
+        @keyframes FadeOut {
+            /* For animation for copy status text */
+            from { opacity: 1; }
+            to   { opacity: 0; }
+        }
+    </style>
+    <script>
+        function ClearAll() {
+            document.getElementById('unencrypted_area').value = '';
+            document.getElementById('one_time_pad_area').value = '';
+            document.getElementById('encrypted_area').value = '';
+        }
+
+        function RemoveNewlines(inputString){
+            // Regex might be slightly more efficient, but this feels more readable
+            return inputString
+                .replaceAll("\r","")
+                .replaceAll("\n", "");
+        }
+
+        function CopyOutput() {
+            var content = document.getElementById('output_area').value;
+            ClipboardUtilities.CopyToClipboard(content);
+        }
+
+        ClipboardUtilities = function () {
+            function CopyToClipboard(textToCopy) {
+                // Support for non-navigator clipboard copying when not over https:// or file:// based on https://stackoverflow.com/a/65996386/2890086
+                // navigator clipboard api needs a secure context (https)
+                if (navigator.clipboard && window.isSecureContext) {
+                    // navigator clipboard api method'
+                    return navigator
+                        .clipboard
+                        .writeText(textToCopy)
+                        .then(
+                            ShowClipboardCopySuccessMessage,
+                            ShowClipboardCopyFailureMessage
+                        );
+                } else {
+                    // text area method
+                    console.log("Using text area with exec");
+                    textArea.value = textToCopy;
+                    // make the textarea out of viewport
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    textArea.style.top = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    return new Promise(
+                        (res, rej) => {
+                            // here the magic happens
+                            document.execCommand('copy') ? res() : rej();
+                            textArea.remove();
+                        }).then(
+                            ShowClipboardCopySuccessMessage,
+                            ShowClipboardCopyFailureMessage
+                        );
+                }
+            }
+
+            const ShowClipboardCopySuccessMessage = function () {
+                var element = document.getElementById('copy_status');
+                element.textContent = 'Output copied to clipboard';
+                element.style.color = 'darkgreen';
+                element.style.animation = 'none';
+                element.offsetHeight; /* trigger reflow */
+                element.style.animation = "FadeOut ease 3.14s";
+            }
+
+            const ShowClipboardCopyFailureMessage = function () {
+                var element = document.getElementById('copy_status');
+                element.textContent = 'Failed to copy output to clipboard';
+                element.style.color = 'darkred';
+                element.style.animation = 'none';
+                element.offsetHeight; /* trigger reflow */
+                element.style.animation = "FadeOut ease 3.14s";
+            }
+
+            /* Expose functions needed outside module*/
+            return {
+                CopyToClipboard:CopyToClipboard,
+            }
+        }();
+
+        function GenerateOneTimePad() {
+            var unencrypted = document.getElementById('unencrypted_area').value;
+            var enc = new TextEncoder(); // always utf-8
+            var unencryptedBytes = enc.encode(unencrypted);
+            // console.log("Length is: ", unencryptedBytes);
+            var randomBytes = new Uint8Array(unencryptedBytes.length);
+            // console.log("Random bytes are: ", randomBytes);
+            crypto.getRandomValues(randomBytes);
+            // console.log("Random bytes are: ", randomBytes);
+            var randomBytesBase64 = Base64Utilities.base64EncArr(randomBytes);
+            document.getElementById('one_time_pad_area').value = randomBytesBase64;
+
+            // var decoded = Base64Utilities.base64DecToArr(randomBytesBase64);
+            // console.assert(randomBytes.length == decoded.length)
+            // for (let i = 0; i < randomBytes.length; i++) {
+            //     console.log(`verifying i: ${i}`);
+            //     console.assert(randomBytes[i] == decoded[i]);
+            //     if(randomBytes[i] != decoded[i]){
+            //         console.log(`something is weird at offset ${i}`);
+            //     }
+            // }
+        }
+
+        function EncryptWithOtp() {
+            var unencrypted = document.getElementById('unencrypted_area').value;
+            var enc = new TextEncoder(); // always utf-8
+            var unencryptedAsUint8Array = enc.encode(unencrypted);
+
+            if(unencryptedAsUint8Array.length == null || unencryptedAsUint8Array.length < 1) {
+                throw new Error("Unencrypted input is required");
+            }
+
+            GenerateOneTimePad();
+            var otpBase64String = document.getElementById('one_time_pad_area').value;
+
+            var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
+            if(otpUint8Array.length != unencryptedAsUint8Array.length){
+                throw new Error("Unencrypted input and OTP length don't match");
+            }
+
+            var encryptedAsUint8Array = new Uint8Array(unencryptedAsUint8Array.length);
+            for (let i = 0; i < unencryptedAsUint8Array.length; i++) {
+                encryptedAsUint8Array[i] = unencryptedAsUint8Array[i] ^ otpUint8Array[i];
+                console.assert(encryptedAsUint8Array[i] == (unencryptedAsUint8Array[i] ^ otpUint8Array[i]), "result of xor (32 bit int) did not match what was put in uint8 array.");
+            }
+
+            var encryptedAsBase64String = Base64Utilities.base64EncArr(encryptedAsUint8Array);
+
+            document.getElementById('encrypted_area').value = encryptedAsBase64String;
+        }
+
+        function DecryptWithOtp() {
+            var encryptedB64 = document.getElementById('encrypted_area').value;
+            var encryptedAsUint8Array = Base64Utilities.base64DecToArr(encryptedB64);
+
+            var otpBase64String = document.getElementById('one_time_pad_area').value;
+
+            if(otpBase64String.length == null || otpBase64String.length < 1) {
+                throw new Error("OTP not supplied");
+            }
+
+            var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
+
+            if(otpUint8Array.length != encryptedAsUint8Array.length){
+                throw new Error("Encrypted input and OTP length don't match");
+            }
+
+            var unencryptedAsUint8Array = new Uint8Array(encryptedAsUint8Array.length);
+            for (let i = 0; i < encryptedAsUint8Array.length; i++) {
+                unencryptedAsUint8Array[i] = encryptedAsUint8Array[i] ^ otpUint8Array[i];
+                console.assert(unencryptedAsUint8Array[i] == (encryptedAsUint8Array[i] ^ otpUint8Array[i]), `DecryptWithOtp (iteration ${i}): result of xor (32 bit int) did not match what was put in uint8 array. When XOR ing encrypted ${encryptedAsUint8Array[i]} with OTP ${otpUint8Array[i]} get ${encryptedAsUint8Array[i] ^ otpUint8Array[i]}, but array contains ${encryptedAsUint8Array[i]}`);
+            }
+
+            var decoder = new TextDecoder("utf-8");
+            var unencryptedAsString = decoder.decode(unencryptedAsUint8Array);
+            // var unencryptedAsString = Base64Utilities.UTF8ArrToStr(unencryptedAsUint8Array);
+
+            document.getElementById('unencrypted_area').value = unencryptedAsString;
+        }
+
+        function GetUnencryptedAsUint8Array(){
+            var unencrypted = document.getElementById('unencrypted_area').value;
+            var enc = new TextEncoder(); // always utf-8
+            var unencryptedUint8Array = enc.encode(unencrypted);
+            return unencryptedUint8Array;
+        }
+
+        function Base64Encode() {
+            var input = document.getElementById('input_area').value;
+            var utf8Array = Base64Utilities.strToUTF8Arr(input);
+            var encoded = Base64Utilities.base64EncArr(utf8Array);
+            document.getElementById('output_area').value = encoded;
+        }
+
+        function Base64Decode() {
+            var input = document.getElementById('input_area').value;
+            var utf8Array = Base64Utilities.base64DecToArr(input);
+            var decoded = Base64Utilities.UTF8ArrToStr(utf8Array);
+            document.getElementById('output_area').value = decoded;
+        }
+
+        Base64Utilities = function() {
+            "use strict";
+
+            /*\
+            |*|
+            |*|  Base64 / binary data / UTF-8 strings utilities
+            |*|
+            |*|  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Base64_encoding_and_decoding
+            |*|
+            \*/
+
+            /* Array of bytes to Base64 string decoding */
+
+            function b64ToUint6 (nChr) {
+                return nChr > 64 && nChr < 91 ?
+                    nChr - 65
+                    : nChr > 96 && nChr < 123 ?
+                    nChr - 71
+                    : nChr > 47 && nChr < 58 ?
+                    nChr + 4
+                    : nChr === 43 ?
+                    62
+                    : nChr === 47 ?
+                    63
+                    :
+                    0;
+            }
+
+            function base64DecToArr (sBase64, nBlocksSize) {
+                var
+                    sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, ""), nInLen = sB64Enc.length,
+                    nOutLen = nBlocksSize ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize : nInLen * 3 + 1 >> 2, taBytes = new Uint8Array(nOutLen);
+
+                for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+                    nMod4 = nInIdx & 3;
+                    nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 6 * (3 - nMod4);
+                    if (nMod4 === 3 || nInLen - nInIdx === 1) {
+                    for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
+                        taBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
+                    }
+                    nUint24 = 0;
+
+                    }
+                }
+
+                return taBytes;
+            }
+
+            /* Base64 string to array encoding */
+
+            function uint6ToB64 (nUint6) {
+                return nUint6 < 26 ?
+                    nUint6 + 65
+                    : nUint6 < 52 ?
+                    nUint6 + 71
+                    : nUint6 < 62 ?
+                    nUint6 - 4
+                    : nUint6 === 62 ?
+                    43
+                    : nUint6 === 63 ?
+                    47
+                    :
+                    65;
+            }
+
+            function base64EncArr (aBytes) {
+                var nMod3 = 2, sB64Enc = "";
+
+                for (var nLen = aBytes.length, nUint24 = 0, nIdx = 0; nIdx < nLen; nIdx++) {
+                    nMod3 = nIdx % 3;
+                    if (nIdx > 0 && (nIdx * 4 / 3) % 76 === 0) { sB64Enc += "\r\n"; }
+                    nUint24 |= aBytes[nIdx] << (16 >>> nMod3 & 24);
+                    if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+                    sB64Enc += String.fromCodePoint(uint6ToB64(nUint24 >>> 18 & 63), uint6ToB64(nUint24 >>> 12 & 63), uint6ToB64(nUint24 >>> 6 & 63), uint6ToB64(nUint24 & 63));
+                    nUint24 = 0;
+                    }
+                }
+
+                return sB64Enc.substr(0, sB64Enc.length - 2 + nMod3) + (nMod3 === 2 ? '' : nMod3 === 1 ? '=' : '==');
+            }
+
+            /* UTF-8 array to DOMString and vice versa */
+
+            function UTF8ArrToStr (aBytes) {
+                var sView = "";
+
+                for (var nPart, nLen = aBytes.length, nIdx = 0; nIdx < nLen; nIdx++) {
+                    nPart = aBytes[nIdx];
+                    sView += String.fromCodePoint(
+                    nPart > 251 && nPart < 254 && nIdx + 5 < nLen ? /* six bytes */
+                        /* (nPart - 252 << 30) may be not so safe in ECMAScript! So...: */
+                        (nPart - 252) * 1073741824 + (aBytes[++nIdx] - 128 << 24) + (aBytes[++nIdx] - 128 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+                    : nPart > 247 && nPart < 252 && nIdx + 4 < nLen ? /* five bytes */
+                        (nPart - 248 << 24) + (aBytes[++nIdx] - 128 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+                    : nPart > 239 && nPart < 248 && nIdx + 3 < nLen ? /* four bytes */
+                        (nPart - 240 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+                    : nPart > 223 && nPart < 240 && nIdx + 2 < nLen ? /* three bytes */
+                        (nPart - 224 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+                    : nPart > 191 && nPart < 224 && nIdx + 1 < nLen ? /* two bytes */
+                        (nPart - 192 << 6) + aBytes[++nIdx] - 128
+                    : /* nPart < 127 ? */ /* one byte */
+                        nPart
+                    );
+                }
+
+                return sView;
+            }
+
+            function strToUTF8Arr (sDOMStr) {
+                var aBytes, nChr, nStrLen = sDOMStr.length, nArrLen = 0;
+
+                /* mapping... */
+
+                for (var nMapIdx = 0; nMapIdx < nStrLen; nMapIdx++) {
+                    nChr = sDOMStr.codePointAt(nMapIdx);
+
+                    if (nChr > 65536) {
+                    nMapIdx++;
+                    }
+
+                    nArrLen += nChr < 0x80 ? 1 : nChr < 0x800 ? 2 : nChr < 0x10000 ? 3 : nChr < 0x200000 ? 4 : nChr < 0x4000000 ? 5 : 6;
+                }
+
+                aBytes = new Uint8Array(nArrLen);
+
+                /* transcription... */
+
+                for (var nIdx = 0, nChrIdx = 0; nIdx < nArrLen; nChrIdx++) {
+                    nChr = sDOMStr.codePointAt(nChrIdx);
+                    if (nChr < 128) {
+                    /* one byte */
+                    aBytes[nIdx++] = nChr;
+                    } else if (nChr < 0x800) {
+                    /* two bytes */
+                    aBytes[nIdx++] = 192 + (nChr >>> 6);
+                    aBytes[nIdx++] = 128 + (nChr & 63);
+                    } else if (nChr < 0x10000) {
+                    /* three bytes */
+                    aBytes[nIdx++] = 224 + (nChr >>> 12);
+                    aBytes[nIdx++] = 128 + (nChr >>> 6 & 63);
+                    aBytes[nIdx++] = 128 + (nChr & 63);
+                    } else if (nChr < 0x200000) {
+                    /* four bytes */
+                    aBytes[nIdx++] = 240 + (nChr >>> 18);
+                    aBytes[nIdx++] = 128 + (nChr >>> 12 & 63);
+                    aBytes[nIdx++] = 128 + (nChr >>> 6 & 63);
+                    aBytes[nIdx++] = 128 + (nChr & 63);
+                    nChrIdx++;
+                    } else if (nChr < 0x4000000) {
+                    /* five bytes */
+                    aBytes[nIdx++] = 248 + (nChr >>> 24);
+                    aBytes[nIdx++] = 128 + (nChr >>> 18 & 63);
+                    aBytes[nIdx++] = 128 + (nChr >>> 12 & 63);
+                    aBytes[nIdx++] = 128 + (nChr >>> 6 & 63);
+                    aBytes[nIdx++] = 128 + (nChr & 63);
+                    nChrIdx++;
+                    } else /* if (nChr <= 0x7fffffff) */ {
+                    /* six bytes */
+                    aBytes[nIdx++] = 252 + (nChr >>> 30);
+                    aBytes[nIdx++] = 128 + (nChr >>> 24 & 63);
+                    aBytes[nIdx++] = 128 + (nChr >>> 18 & 63);
+                    aBytes[nIdx++] = 128 + (nChr >>> 12 & 63);
+                    aBytes[nIdx++] = 128 + (nChr >>> 6 & 63);
+                    aBytes[nIdx++] = 128 + (nChr & 63);
+                    nChrIdx++;
+                    }
+                }
+
+                return aBytes;
+            }
+
+            /* Expose functions needed outside module*/
+
+            return{
+                strToUTF8Arr:strToUTF8Arr,
+                UTF8ArrToStr:UTF8ArrToStr,
+                base64EncArr:base64EncArr,
+                base64DecToArr:base64DecToArr,
+                // uint6ToB64:uint6ToB64,
+                // b64ToUint6:b64ToUint6
+            }
+        }();
+
+    </script>
+</head>
+<body>
+    <div class="all_text_areas_wrapper">
+        <div class="title_and_text_area_wrapper">
+            <h1><label for="unencrypted_area">Unencrypted</label></h1>
+
+            <button onclick="CopyUnencrypted()" title="Copy unencrypted to clipboard.">
+                <span style="position: relative; font-size: 1.3rem;">
+                    <!-- Clipboard icon, &ClearOutput#128203; -->
+                    📋
+                    <span style="position: absolute; top: .4rem; left: .6rem; font-size: 1rem;">
+                        <!-- Leftwards arrow with hook, &#8617; -->
+                        ↩
+                    </span>
+                </span>
+            </button>
+
+            <textarea id="unencrypted_area" name="unencrypted_area" rows="20" cols="60"></textarea>
+
+        </div>
+
+        <div class="title_and_text_area_wrapper">
+            <h1><label for="one_time_pad_area">One Time Pad</label></h1>
+
+            <button onclick="CopyOneTimePad()" title="Copy one time pad to clipboard.">
+                <span style="position: relative; font-size: 1.3rem;">
+                    <!-- Clipboard icon, &ClearOutput#128203; -->
+                    📋
+                    <span style="position: absolute; top: .4rem; left: .6rem; font-size: 1rem;">
+                        <!-- Leftwards arrow with hook, &#8617; -->
+                        ↩
+                    </span>
+                </span>
+            </button>
+
+            <textarea id="one_time_pad_area" name="one_time_pad_area" rows="20" cols="60"></textarea>
+
+            <!-- <button onclick="GenerateOneTimePad()" title="Generate one time pad">Generate OTP</button> -->
+        </div>
+
+        <div class="title_and_text_area_wrapper">
+            <h1><label for="encrypted_area">Encrypted</label></h1>
+
+            <button onclick="CopyEncrypted()" title="Copy encrypted to clipboard.">
+                <span style="position: relative; font-size: 1.3rem;">
+                    <!-- Clipboard icon, &ClearOutput#128203; -->
+                    📋
+                    <span style="position: absolute; top: .4rem; left: .6rem; font-size: 1rem;">
+                        <!-- Leftwards arrow with hook, &#8617; -->
+                        ↩
+                    </span>
+                </span>
+            </button>
+
+            <textarea id="encrypted_area" name="encrypted_area" rows="20" cols="60"></textarea>
+        </div>
+    </div>
+    <fieldset>
+        <legend>Actions</legend>
+        <button onclick="EncryptWithOtp()">Encrypt with OTP</button>
+        <button onclick="DecryptWithOtp()">Decrypt using OTP</button>
+        <button onclick="ClearAll()">Clear All</button>
+    </fieldset>
+</body>
+</html>
+
