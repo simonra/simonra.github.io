@@ -197,6 +197,10 @@
         function DecryptWithOtp() {
             var encryptedB64 = document.getElementById('encrypted_area').value;
             var encryptedAsUint8Array = Base64Utilities.base64DecToArr(encryptedB64);
+            if(encryptedAsUint8Array.length == null || encryptedAsUint8Array.length < 1) {
+                ShowFailureMessage("Encrypted input is required");
+                throw new Error("Encrypted input is required");
+            }
 
             var otpBase64String = document.getElementById('one_time_pad_area').value;
 
@@ -418,6 +422,10 @@
     </script>
 </head>
 <body>
+    <h1>One Time Pad Tool</h1>
+    <button onclick="ClearAll()">Clear All</button>
+    <br>
+    <br>
     <div class="all_text_areas_wrapper">
         <div class="title_and_text_area_wrapper">
             <h2><label for="unencrypted_area">Unencrypted</label></h2>
@@ -476,9 +484,8 @@
     <span id="action_status">status</span><br>
     <fieldset>
         <legend>Actions</legend>
-        <button onclick="EncryptWithOtp()">Encrypt with OTP</button>
+        <button onclick="EncryptWithOtp()">Generate OTP and encrypt</button>
         <button onclick="DecryptWithOtp()">Decrypt using OTP</button>
-        <button onclick="ClearAll()">Clear All</button>
     </fieldset>
 </body>
 </html>
