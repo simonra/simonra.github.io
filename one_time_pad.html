@@ -69,6 +69,15 @@
             element.style.animation = "FadeOut ease 5s";
         }
 
+        function ShowWarningMessage(messageText) {
+            var element = document.getElementById('action_status');
+            element.textContent = messageText;
+            element.style.color = 'darkorange';
+            element.style.animation = 'none';
+            element.offsetHeight; /* trigger reflow */
+            element.style.animation = "FadeOut ease 5s";
+        }
+
         function CopyUnencrypted() {
             var content = document.getElementById('unencrypted_area').value;
             ClipboardUtilities.CopyToClipboard(content);
@@ -165,7 +174,7 @@
             // }
         }
 
-        function EncryptWithOtp() {
+        function EncryptWithGeneratedOtp() {
             var unencrypted = document.getElementById('unencrypted_area').value;
             var enc = new TextEncoder(); // always utf-8
             var unencryptedAsUint8Array = enc.encode(unencrypted);
@@ -177,6 +186,39 @@
 
             GenerateOneTimePad();
             var otpBase64String = document.getElementById('one_time_pad_area').value;
+
+            var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
+            if(otpUint8Array.length != unencryptedAsUint8Array.length){
+                throw new Error("Unencrypted input and OTP length don't match");
+            }
+
+            var encryptedAsUint8Array = new Uint8Array(unencryptedAsUint8Array.length);
+            for (let i = 0; i < unencryptedAsUint8Array.length; i++) {
+                encryptedAsUint8Array[i] = unencryptedAsUint8Array[i] ^ otpUint8Array[i];
+                console.assert(encryptedAsUint8Array[i] == (unencryptedAsUint8Array[i] ^ otpUint8Array[i]), "result of xor (32 bit int) did not match what was put in uint8 array.");
+            }
+
+            var encryptedAsBase64String = Base64Utilities.base64EncArr(encryptedAsUint8Array);
+
+            document.getElementById('encrypted_area').value = encryptedAsBase64String;
+        }
+
+        function EncryptWithSuppliedOtp() {
+            var unencrypted = document.getElementById('unencrypted_area').value;
+            var enc = new TextEncoder(); // always utf-8
+            var unencryptedAsUint8Array = enc.encode(unencrypted);
+
+            if(unencryptedAsUint8Array.length == null || unencryptedAsUint8Array.length < 1) {
+                ShowFailureMessage("Unencrypted input is required");
+                throw new Error("Unencrypted input is required");
+            }
+
+            var otpBase64String = document.getElementById('one_time_pad_area').value;
+
+            if(otpBase64String.length == null || otpBase64String.length < 1) {
+                ShowFailureMessage("OTP is required");
+                throw new Error("OTP is required");
+            }
 
             var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
             if(otpUint8Array.length != unencryptedAsUint8Array.length){
@@ -441,7 +483,7 @@
                 </span>
             </button>
 
-            <textarea id="unencrypted_area" name="unencrypted_area" rows="20" cols="60"></textarea>
+            <textarea id="unencrypted_area" name="unencrypted_area" rows="20" cols="60" placeholder="Raw UTF-8 formatted message"></textarea>
 
         </div>
 
@@ -459,7 +501,7 @@
                 </span>
             </button>
 
-            <textarea id="one_time_pad_area" name="one_time_pad_area" rows="20" cols="60"></textarea>
+            <textarea id="one_time_pad_area" name="one_time_pad_area" rows="20" cols="60" placeholder="Base64 encoded bytes"></textarea>
 
             <!-- <button onclick="GenerateOneTimePad()" title="Generate one time pad">Generate OTP</button> -->
         </div>
@@ -478,13 +520,14 @@
                 </span>
             </button>
 
-            <textarea id="encrypted_area" name="encrypted_area" rows="20" cols="60"></textarea>
+            <textarea id="encrypted_area" name="encrypted_area" rows="20" cols="60" placeholder="Base64 encoded bytes"></textarea>
         </div>
     </div>
     <span id="action_status">status</span><br>
     <fieldset>
         <legend>Actions</legend>
-        <button onclick="EncryptWithOtp()">Generate OTP and encrypt</button>
+        <button onclick="EncryptWithGeneratedOtp()">Generate OTP and encrypt</button>
+        <button onclick="EncryptWithSuppliedOtp()">Encrypt using OTP</button>
         <button onclick="DecryptWithOtp()">Decrypt using OTP</button>
     </fieldset>
 </body>
