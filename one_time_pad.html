@@ -51,6 +51,24 @@
                 .replaceAll("\n", "");
         }
 
+        function ShowSuccessMessage(messageText) {
+                var element = document.getElementById('action_status');
+                element.textContent = messageText;
+                element.style.color = 'darkgreen';
+                element.style.animation = 'none';
+                element.offsetHeight; /* trigger reflow */
+                element.style.animation = "FadeOut ease 3.14s";
+            }
+
+        function ShowFailureMessage(messageText) {
+            var element = document.getElementById('action_status');
+            element.textContent = messageText;
+            element.style.color = 'darkred';
+            element.style.animation = 'none';
+            element.offsetHeight; /* trigger reflow */
+            element.style.animation = "FadeOut ease 5s";
+        }
+
         function CopyUnencrypted() {
             var content = document.getElementById('unencrypted_area').value;
             ClipboardUtilities.CopyToClipboard(content);
@@ -153,6 +171,7 @@
             var unencryptedAsUint8Array = enc.encode(unencrypted);
 
             if(unencryptedAsUint8Array.length == null || unencryptedAsUint8Array.length < 1) {
+                ShowFailureMessage("Unencrypted input is required");
                 throw new Error("Unencrypted input is required");
             }
 
@@ -182,12 +201,14 @@
             var otpBase64String = document.getElementById('one_time_pad_area').value;
 
             if(otpBase64String.length == null || otpBase64String.length < 1) {
+                ShowFailureMessage("OTP not supplied");
                 throw new Error("OTP not supplied");
             }
 
             var otpUint8Array = Base64Utilities.base64DecToArr(otpBase64String);
 
             if(otpUint8Array.length != encryptedAsUint8Array.length){
+                ShowFailureMessage("Encrypted input and OTP length don't match");
                 throw new Error("Encrypted input and OTP length don't match");
             }
 
