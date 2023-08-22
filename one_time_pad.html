@@ -52,13 +52,13 @@
         }
 
         function ShowSuccessMessage(messageText) {
-                var element = document.getElementById('action_status');
-                element.textContent = messageText;
-                element.style.color = 'darkgreen';
-                element.style.animation = 'none';
-                element.offsetHeight; /* trigger reflow */
-                element.style.animation = "FadeOut ease 3.14s";
-            }
+            var element = document.getElementById('action_status');
+            element.textContent = messageText;
+            element.style.color = 'darkgreen';
+            element.style.animation = 'none';
+            element.offsetHeight; /* trigger reflow */
+            element.style.animation = "FadeOut ease 3.14s";
+        }
 
         function ShowFailureMessage(messageText) {
             var element = document.getElementById('action_status');
