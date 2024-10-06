@@ -12,15 +12,35 @@ td, th {
 	padding: 0.5em;
 	text-align: left;
 }
-/*While list is short, only give header special look. Once list expands, consider coloring alternate lines to make easier to follow.*/
+
 th{
-	background-color: #dddddd;
+	background-color: #cccccc;
 }
-/*
 tr:nth-child(even) {
-	background-color: #dddddd;
+	background-color: #eeeeee;
 }
-*/
+
+a:link, a:visited {
+    color: blue;
+}
+
+.rainbow_text_animated {
+    background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow_animation 18s ease-in infinite;
+    background-size: 400% 100%;
+}
+@keyframes rainbow_animation {
+    0%,100% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 100% 0;
+    }
+}
 
 @media (max-width: 60em){
 	body{
