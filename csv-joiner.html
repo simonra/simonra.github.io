@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="flex-container flex-wrap gap-05">
-        <div>
+        <div class="border">
             <h2>Input Areas</h2>
             <div class="flex-container flex-wrap gap-05">
                 <div>
@@ -18,9 +18,12 @@
                     </div>
                     <div>
                         <label for="input_has_header_row_first">First line is headers</label>
-                        <input type="checkbox" id="input_has_header_row_first">
+                        <input type="checkbox" id="input_has_header_row_first" checked>
                     </div>
-                    <textarea id="input_area_first"></textarea>
+                    <textarea id="input_area_first" rows="5" cols="30">ID	Other	Example	Headings
+X	A 1:1	A 1:2	A 1:3
+Y	A 2:1	A 2:2	A 2:3
+Z	A 3:1	A 3:2	A 3:3</textarea>
                 </div>
                 <div>
                     <h3>Input B</h3>
@@ -30,9 +33,12 @@
                     </div>
                     <div>
                         <label for="input_has_header_row_second">First line is headers</label>
-                        <input type="checkbox" id="input_has_header_row_second">
+                        <input type="checkbox" id="input_has_header_row_second" checked>
                     </div>
-                    <textarea id="input_area_second"></textarea>
+                    <textarea id="input_area_second" rows="5" cols="30">ID	Other	Example	Headings
+Y	B 1:1	B 1:2	B 1:3
+Z	B 2:1	B 2:2	B 2:3
+N	B 3:1	B 3:2	B 3:3</textarea>
                 </div>
             </div>
         </div>
@@ -55,7 +61,7 @@
         <div>
             <h2>Join</h2>
             <div class="flex-container flex-wrap gap-05">
-                <div>
+                <div class="border">
                     <h3>Join criteria</h3>
                     <div>
                         <label for="join_mode_selection">Join mode</label>
@@ -656,6 +662,12 @@
     }();
 </script>
 <style>
+    body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-bottom: 60vh;
+    }
+
     table tbody tr:nth-child(odd) {
         background:#ccc;
     }
@@ -704,6 +716,13 @@
     .hidden {
         display: none;
     }
+
+    .border {
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        padding: 0.5rem;
+    }
+
     .flex-container {
         display: flex;
     }
