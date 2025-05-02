@@ -80,6 +80,10 @@
                         <label for="join_criteria_second_table_match_column">Join from B on column</label>
                         <select id="join_criteria_second_table_match_column"></select>
                     </div>
+                    <div>
+                        <label for="show_line_numbers">Show row numbers</label>
+                        <input type="checkbox" id="show_line_numbers">
+                    </div>
                 </div>
                 <div>
                     <h3>Joined
@@ -163,6 +167,13 @@
         });
         var joinColumnSelectedSecond = document.getElementById("join_criteria_second_table_match_column");
         joinColumnSelectedSecond.addEventListener("input", (event) => {
+            processJoin();
+        });
+
+        var showLineNumbersToggle = document.getElementById("show_line_numbers");
+        showLineNumbersToggle.addEventListener("input", (event) => {
+            processFirst();
+            processSecond();
             processJoin();
         });
     }
@@ -399,7 +410,8 @@
         var inputArea = document.getElementById(inputAreaId).value;
         var firstRowIsHeaders = document.getElementById(hasHeaderCheckboxId).checked;
         var delimiter = parseDelimiter(document.getElementById(delimiterTextInputId).value);
-        console.debug("Raw values are:", {inputAreaId, hasHeaderCheckboxId, delimiterTextInputId, inputArea, firstRowIsHeaders, delimiter});
+        var showLineNumbers = document.getElementById("show_line_numbers").checked;
+        console.debug("Raw values are:", {inputAreaId, hasHeaderCheckboxId, delimiterTextInputId, inputArea, firstRowIsHeaders, delimiter, showLineNumbers});
 
         if(inputArea == "") {
             return getParsedDefaultValue(tableLabel);
@@ -425,6 +437,13 @@
                 datasetHeadings.push("Column " + tableLabel + i);
             }
             firstRowIsHeaders = true;
+        }
+        if(showLineNumbers){
+            datasetHeadings.push("Row#");
+            for (let i = 0; i < datasetValues.length; i++) {
+                datasetValues[i].push(i);
+            }
+            datasetLongestRowLength += 1;
         }
         var result = {
             hasHeadings: firstRowIsHeaders,
