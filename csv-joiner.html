@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>CSV Joiner</title>
 </head>
 <body>
+    <div class="padding-bottom-05">
+        <h1>Offline CSV Joiner</h1>
+        <details>
+            <summary><h2 class="inline-block">About</h2></summary>
+            <p>This is a tool for joining two CSV files by matching up one column from each.</p>
+            <p>The reason it exists is that I rarely, but somewhat regularly, need to join two lists. Figuring out the arcane incantations various spreadsheet products (I may or may not have at hand for the task) need to do this fairly trivial task is too much (for instance excel power query anno 2025 brought much frustration and head scratching, not joy). At the same time fiering up a dev environment, database, and database view, for then to load the data, so I can finally come up with and run som queries, also belongs to the costs more than it's worth. Finally the good old shell tools would be worth considering if it were large data sets of e.g. several GB of data, not just hundreds to thousands of lines. However for my rare ad hoc needs maintaining a guide I can can reliably follow after a year or so, and being fairly sure I can access them at all, makes them less viable as well.</p>
+            <p>Usage wise it defaults to the filed separator being tab (\t), so that you can paste directly from website tables or excel, which is my main usecase for this. However, you can enter mostly any string you'd like as the separator.</p>
+            <p>The tool is made to run offline/locally in your browser. It's also made to be a self contained html file, so you can ctrl+s in the browser and save it as a HTML file. Or alternatively ctrl+u/right click -> view page source, and save the content to a .html file. You should then be able to run it offline by simply opening the html file!</p>
+            <p>Share and enjoy</p>
+        </details>
+    </div>
     <div class="flex-container flex-wrap gap-05">
         <div class="border">
             <h2>Input Areas</h2>
@@ -72,21 +83,22 @@ N	B 3:1	B 3:2	B 3:3</textarea>
                             <option value="full_outer">Full outer join</option>
                             <option value="outer_excluding">Outer excluding join</option>
                         </select>
+                        <br>
                         <div id="illustration-inner-join" class="inline-block"><span title="Picture illustrating inner join. Only items matching the criteria from both A and B (set intersect)." class="background-icon background-icon-inner-join"></span></div>
                         <div id="illustration-left-outer-join" class="inline-block hidden"><span title="Picture illustrating left outer join. All items from A, and including their values from B where matching." class="background-icon background-icon-left-outer-join"></span></div>
                         <div id="illustration-right-outer-join" class="inline-block hidden"><span title="Picture illustrating right outer join. All items from B, and including their values from A where matching." class="background-icon background-icon-right-outer-join"></span></div>
                         <div id="illustration-full-outer-join" class="inline-block hidden"><span title="Picture illustrating full outer join. All items from A and B (set union)." class="background-icon background-icon-full-outer-join"></span></div>
                         <div id="illustration-outer-excluding-join" class="inline-block hidden"><span title="Picture illustrating outer excluding join. All items from A and B, except those matching." class="background-icon background-icon-outer-excluding-join"></span></div>
                     </div>
-                    <div>
+                    <div class="padding-top-05">
                         <label for="join_criteria_first_table_match_column">Join from A on column</label>
                         <select id="join_criteria_first_table_match_column"></select>
                     </div>
-                    <div>
+                    <div class="padding-top-05">
                         <label for="join_criteria_second_table_match_column">Join from B on column</label>
                         <select id="join_criteria_second_table_match_column"></select>
                     </div>
-                    <div>
+                    <div class="padding-top-05">
                         <label for="show_line_numbers">Show line numbers</label>
                         <input type="checkbox" id="show_line_numbers">
                     </div>
@@ -734,6 +746,12 @@ N	B 3:1	B 3:2	B 3:3</textarea>
     }
     .gap-05 {
         gap: 0.5rem;
+    }
+    .padding-bottom-05 {
+        padding-bottom: 0.5rem;
+    }
+    .padding-top-05 {
+        padding-top: 0.5rem;
     }
     .background-icon {
         display: inline-block;
