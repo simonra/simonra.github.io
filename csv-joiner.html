@@ -17,7 +17,7 @@
                         <input type="text" id="input_delimiter_first" size="3" placeholder="\t">
                     </div>
                     <div>
-                        <label for="input_has_header_row_first">First row is headers</label>
+                        <label for="input_has_header_row_first">First line is headers</label>
                         <input type="checkbox" id="input_has_header_row_first">
                     </div>
                     <textarea id="input_area_first"></textarea>
@@ -29,7 +29,7 @@
                         <input type="text" id="input_delimiter_second" size="3" placeholder="\t">
                     </div>
                     <div>
-                        <label for="input_has_header_row_second">First row is headers</label>
+                        <label for="input_has_header_row_second">First line is headers</label>
                         <input type="checkbox" id="input_has_header_row_second">
                     </div>
                     <textarea id="input_area_second"></textarea>
@@ -81,7 +81,7 @@
                         <select id="join_criteria_second_table_match_column"></select>
                     </div>
                     <div>
-                        <label for="show_line_numbers">Show row numbers</label>
+                        <label for="show_line_numbers">Show line numbers</label>
                         <input type="checkbox" id="show_line_numbers">
                     </div>
                 </div>
@@ -434,17 +434,21 @@
         }
         else {
             for (let i = 0; i < datasetLongestRowLength; i++) {
-                datasetHeadings.push("Column " + tableLabel + i);
+                datasetHeadings.push("Column " + i);
             }
-            firstRowIsHeaders = true;
         }
         if(showLineNumbers){
-            datasetHeadings.push("Row#");
+            datasetHeadings.push("Line#");
+            var lineStartNumber = 1;
+            if(firstRowIsHeaders){
+                lineStartNumber = 2;
+            }
             for (let i = 0; i < datasetValues.length; i++) {
-                datasetValues[i].push(i);
+                datasetValues[i].push(i+lineStartNumber);
             }
             datasetLongestRowLength += 1;
         }
+        firstRowIsHeaders = true;
         var result = {
             hasHeadings: firstRowIsHeaders,
             headings: datasetHeadings,
