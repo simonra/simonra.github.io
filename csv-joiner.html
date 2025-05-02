@@ -37,17 +37,20 @@
             </div>
         </div>
         <div>
-            <h2>Parsed</h2>
-            <div class="flex-container flex-wrap gap-05">
-                <div>
-                    <h3>A Parsed</h3>
-                    <table id="output_table_parsed_first"></table>
+            <!-- <h2>Parsed</h2> -->
+            <details open>
+                <summary><h2 class="inline-block">Parsed</h2></summary>
+                <div class="flex-container flex-wrap gap-05">
+                    <div>
+                        <h3>A Parsed</h3>
+                        <table id="output_table_parsed_first"></table>
+                    </div>
+                    <div>
+                        <h3>B Parsed</h3>
+                        <table id="output_table_parsed_second"></table>
+                    </div>
                 </div>
-                <div>
-                    <h3>B Parsed</h3>
-                    <table id="output_table_parsed_second"></table>
-                </div>
-            </div>
+            </details>
         </div>
         <div>
             <h2>Join</h2>
@@ -80,7 +83,7 @@
                 </div>
                 <div>
                     <h3>Joined
-                        <button onclick="CopyOutput()" title="Copy output to clipboard.">
+                        <button onclick="CopyOutput()" title="Copy output to clipboard." style="cursor: pointer;">
                             <span style="position: relative; font-size: 1.3rem;">
                                 <!-- Clipboard icon, &#128203; -->
                                 📋
@@ -636,6 +639,42 @@
     table tbody tr:nth-child(even) {
         background:#eee;
     }
+
+    details {
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        /* padding: 0.5em 0.5em 0; */
+    }
+    details summary {
+        cursor: pointer;
+        list-style-type: none;
+    }
+    summary::-webkit-details-marker {
+        display: none
+    }
+    details>summary::before {
+        content: '+\A';
+        font-size: 2rem;
+        position: relative;
+        top: 0.25rem;
+    }
+    details[open]>summary::before {
+        content: '-\A';
+        font-size: 2rem;
+        position: relative;
+        top: 0.25rem;
+    }
+    details[open] {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    details[open] summary {
+        border-bottom: 1px solid #aaa;
+    }
+
     .inline-block {
         display: inline-block;
     }
