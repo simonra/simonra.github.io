@@ -24,6 +24,10 @@
                 <div>
                     <h3>Input A</h3>
                     <div>
+                        <label for="input_label_first">Label</label>
+                        <input type="text" id="input_label_first" size="3" value="(A)">
+                    </div>
+                    <div>
                         <label for="input_delimiter_first">Field separator</label>
                         <input type="text" id="input_delimiter_first" size="3" placeholder="\t">
                     </div>
@@ -38,6 +42,10 @@ Z	A 3:1	A 3:2	A 3:3</textarea>
                 </div>
                 <div>
                     <h3>Input B</h3>
+                    <div>
+                        <label for="input_label_second">Label</label>
+                        <input type="text" id="input_label_second" size="3" value="(B)">
+                    </div>
                     <div>
                         <label for="input_delimiter_second">Field separator</label>
                         <input type="text" id="input_delimiter_second" size="3" placeholder="\t">
@@ -154,6 +162,11 @@ N	B 3:1	B 3:2	B 3:3</textarea>
             processFirst();
             processJoin();
         });
+        var firstLabel = document.getElementById("input_label_first");
+        firstLabel.addEventListener("input", (event) => {
+            processFirst();
+            processJoin();
+        });
 
 
         var secondInputArea = document.getElementById("input_area_second");
@@ -168,6 +181,11 @@ N	B 3:1	B 3:2	B 3:3</textarea>
         });
         var secondDelimiter = document.getElementById("input_delimiter_second");
         secondDelimiter.addEventListener("input", (event) => {
+            processSecond();
+            processJoin();
+        });
+        var secondLabel = document.getElementById("input_label_second");
+        secondLabel.addEventListener("input", (event) => {
             processSecond();
             processJoin();
         });
@@ -198,7 +216,7 @@ N	B 3:1	B 3:2	B 3:3</textarea>
 
     function processFirst(){
         // var parsed = parseFirstInput();
-        var parsed = parseInput("input_area_first", "input_has_header_row_first", "input_delimiter_first", "A");
+        var parsed = parseInput("input_area_first", "input_has_header_row_first", "input_delimiter_first", "input_label_first");
         parsedFirstCache = parsed;
         if(parsed == undefined) {
             console.warn("Got undefined when parsing content");
@@ -210,7 +228,7 @@ N	B 3:1	B 3:2	B 3:3</textarea>
     }
 
     function processSecond(){
-        var parsed = parseInput("input_area_second", "input_has_header_row_second", "input_delimiter_second", "B");
+        var parsed = parseInput("input_area_second", "input_has_header_row_second", "input_delimiter_second", "input_label_second");
         parsedSecondCache = parsed;
         if(parsed == undefined) {
             console.warn("Got undefined when parsing content");
@@ -370,15 +388,23 @@ N	B 3:1	B 3:2	B 3:3</textarea>
 
         var newTableHeader = document.createElement("thead");
         var newHeaderRow = document.createElement("tr");
+        var firstHeadersLabelSuffix = "";
+        if (parsedFirst.label != "") {
+            firstHeadersLabelSuffix = " " + parsedFirst.label;
+        }
         for (let i = 0; i < parsedFirst.headings.length; i++) {
             var newTh = document.createElement("th");
-            var newThContent = document.createTextNode(parsedFirst.headings[i] + "(" + parsedFirst.label + ")");
+            var newThContent = document.createTextNode(parsedFirst.headings[i] + firstHeadersLabelSuffix);
             newTh.appendChild(newThContent);
             newHeaderRow.appendChild(newTh)
         }
+        var secondHeadersLabelSuffix = "";
+        if (parsedSecond.label != "") {
+            secondHeadersLabelSuffix = " " + parsedSecond.label;
+        }
         for (let i = 0; i < parsedSecond.headings.length; i++) {
             var newTh = document.createElement("th");
-            var newThContent = document.createTextNode(parsedSecond.headings[i] + "(" + parsedSecond.label + ")");
+            var newThContent = document.createTextNode(parsedSecond.headings[i] + secondHeadersLabelSuffix);
             newTh.appendChild(newThContent);
             newHeaderRow.appendChild(newTh)
         }
@@ -428,11 +454,12 @@ N	B 3:1	B 3:2	B 3:3</textarea>
         var inputArea = document.getElementById(inputAreaId).value;
         var firstRowIsHeaders = document.getElementById(hasHeaderCheckboxId).checked;
         var delimiter = parseDelimiter(document.getElementById(delimiterTextInputId).value);
+        var label = document.getElementById(tableLabel).value;
         var showLineNumbers = document.getElementById("show_line_numbers").checked;
-        console.debug("Raw values are:", {inputAreaId, hasHeaderCheckboxId, delimiterTextInputId, inputArea, firstRowIsHeaders, delimiter, showLineNumbers});
+        console.debug("Raw values are:", {inputAreaId, hasHeaderCheckboxId, delimiterTextInputId, label, inputArea, firstRowIsHeaders, delimiter, showLineNumbers});
 
         if(inputArea == "") {
-            return getParsedDefaultValue(tableLabel);
+            return getParsedDefaultValue(label);
         }
 
         var splitLines = inputArea.split("\n");
@@ -472,7 +499,7 @@ N	B 3:1	B 3:2	B 3:3</textarea>
             headings: datasetHeadings,
             values: datasetValues,
             longestRowLength: datasetLongestRowLength,
-            label: tableLabel
+            label: label
         };
         return result;
     }
