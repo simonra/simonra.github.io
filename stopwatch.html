@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./tailwind-4.3.1-min.js"></script>
+  <!-- Fetch all of tailwind from cdn guide: https://tailwindcss.com/docs/installation/play-cdn
+        https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4 -->
+</head>
+<body class="p-8">
+  <main class="text-7xl">
+
+    <div id="wrapper-inputs" class="flex flex-wrap justify-between">
+
+      <div id="wrapper-preset-laps-config" class="w-120 text-3xl mb-4 grid grid-cols-[75%_25%] gap-1">
+        <div id="wrapper-lap-length" class="col-span-full grid grid-cols-subgrid">
+          <label for="input-lap-length" class="col-1">Lap length:</label>
+          <input type="number" id="input-lap-length" min="0" class="col-2" />
+        </div>
+        <div id="wrapper-lap-gap" class="col-span-full grid grid-cols-subgrid">
+          <label for="input-lap-gap" class="col-1">Gap between laps:</label>
+          <input type="number" id="input-lap-gap" min="0" class="col-2" />
+        </div>
+        <div id="wrapper-lap-set-lenght" class="col-span-full grid grid-cols-subgrid">
+          <label for="input-set-of-laps-length" class="col-1">Number of laps in set:</label>
+          <input type="number" id="input-set-of-laps-length" min="0" class="col-2" />
+        </div>
+        <div id="wrapper-lap-set-gap" class="col-span-full grid grid-cols-subgrid">
+          <label for="input-set-of-laps-gap" class="col-1">Gap between sets:</label>
+          <input type="number" id="input-set-of-laps-gap" min="0" class="col-2" />
+        </div>
+      </div>
+
+      <div id="wrapper-buttons" class="flex">
+        <div id="wrapper-start-pause" class="m-2">
+          <input type="button" id="button-start-pause" value="Start" class="bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700  border-4 text-white py-1 px-2 rounded" />
+        </div>
+        <div id="wrapper-reset" class="m-2">
+          <input type="button" id="button-reset" value="Reset" class="bg-red-500 hover:bg-red-700 border-red-500 hover:border-red-700  border-4 text-white py-1 px-2 rounded" />
+        </div>
+      </div>
+
+      <div id="wrapper-current-time">
+        <p>Current clock time</p>
+        <input type="time" name="current-time" id="display-current-time" step="1">
+      </div>
+    </div>
+
+    <div id="wrapper-counters" class="3xl:grid grid-cols-2 gap-8 place-content-center place-items-center">
+      <div id="wrapper-total-counter" class="col-span-full w-200 text-center border-4 border-emerald-500/100 mt-4 3xl:mt-0">
+        <p class="text-5xl">Total Time</p>
+        <p id="display-of-total-counter" class="text-9xl font-mono">00:00:00.0</p>
+      </div>
+
+      <div id="wrapper-current-counter" class="w-200 text-center border-4 border-sky-500/100  mt-4 3xl:mt-0 collapse">
+        <p class="text-5xl">Current Lap</p>
+        <p id="display-of-current-counter" class="text-9xl font-mono">00:00:00.0</p>
+      </div>
+      <div id="wrapper-gap-counter" class="w-200 text-center border-4 border-orange-500/100  mt-4 3xl:mt-0 collapse">
+        <p class="text-5xl">Current Gap</p>
+        <p id="display-of-gap-counter" class="text-9xl font-mono">00:00:00.0</p>
+      </div>
+
+      <div id="wrapper-current-set-counter" class="w-200 text-center border-4 border-teal-500/100  mt-4 3xl:mt-0 collapse">
+        <p class="text-5xl">Current Set</p>
+        <p id="display-of-current-set-counter" class="text-9xl font-mono">00:00:00.0</p>
+      </div>
+      <div id="wrapper-set-gap-counter" class="w-200 text-center border-4 border-orange-500/100  mt-4 3xl:m-0 collapse">
+        <p class="text-5xl">Current Set Gap</p>
+        <p id="display-of-set-gap-counter" class="text-9xl font-mono">00:00:00.0</p>
+      </div>
+    </div>
+  </main>
+</body>
+<script type="text/javascript">
+  const elementInputLapLength = document.getElementById("input-lap-length");
+  const elementInputLapGap = document.getElementById("input-lap-gap");
+  const elementInputSetOfLapsLength = document.getElementById("input-set-of-laps-length");
+  const elementInputSetOfLapsGap = document.getElementById("input-set-of-laps-gap");
+
+  const elementDisplayOfCurrentCounter = document.getElementById("display-of-current-counter");
+  const elementDisplayOfGapCounter = document.getElementById("display-of-gap-counter");
+  const elementDisplayOfCurrentSetCounter = document.getElementById("display-of-current-set-counter");
+  const elementDisplayOfSetGapCounter = document.getElementById("display-of-set-gap-counter");
+
+  const elementTotalCounter = document.getElementById("display-of-total-counter");
+  const elementCurrentClockTime = document.getElementById("display-current-time");
+  const elementResetButton = document.getElementById("button-reset");
+  const elementStartStopButton = document.getElementById("button-start-pause");
+
+  const elementWrapperCurrentCounter = document.getElementById("wrapper-current-counter");
+  const elementWrapperGapCounter = document.getElementById("wrapper-gap-counter");
+  const elementWrapperCurrentSetCounter = document.getElementById("wrapper-current-set-counter");
+  const elementWrapperSetGapCounter = document.getElementById("wrapper-set-gap-counter");
+
+  const updateVisible = () => {
+    if (elementInputLapLength.value > 0 && elementInputLapGap.value > 0 && elementInputSetOfLapsLength.value > 0 && elementInputSetOfLapsGap.value > 0) {
+      // show all
+      elementWrapperCurrentCounter.classList.remove("collapse");
+      elementWrapperGapCounter.classList.remove("collapse");
+      elementWrapperCurrentSetCounter.classList.remove("collapse");
+      elementWrapperSetGapCounter.classList.remove("collapse");
+    } else if (elementInputLapLength.value > 0 && elementInputLapGap.value > 0) {
+      // only dont show lap and lap gap
+      elementWrapperCurrentCounter.classList.remove("collapse");
+      elementWrapperGapCounter.classList.remove("collapse");
+      elementWrapperCurrentSetCounter.classList.add("collapse");
+      elementWrapperSetGapCounter.classList.add("collapse");
+    } else {
+      // only show main counter
+      elementWrapperCurrentCounter.classList.add("collapse");
+      elementWrapperGapCounter.classList.add("collapse");
+      elementWrapperCurrentSetCounter.classList.add("collapse");
+      elementWrapperSetGapCounter.classList.add("collapse");
+    }
+
+  };
+  elementInputLapLength.addEventListener("input", updateVisible);
+  elementInputLapGap.addEventListener("input", updateVisible);
+  elementInputSetOfLapsLength.addEventListener("input", updateVisible);
+  elementInputSetOfLapsGap.addEventListener("input", updateVisible);
+
+
+  DateTimeUtilities = function() {
+    const padToTwoDigits = (value) => value < 10 ? `0${value}` : value;
+    const getCurrentHhMm = (date) => {
+      const hours = padToTwoDigits(date.getHours());
+      const mins = padToTwoDigits(date.getMinutes());
+      return `${hours}:${mins}`;
+    }
+    const getCurrentHhMmSs = (date) => {
+      const hours = padToTwoDigits(date.getHours());
+      const mins = padToTwoDigits(date.getMinutes());
+      const secs = padToTwoDigits(date.getSeconds());
+      return `${hours}:${mins}:${secs}`;
+    }
+    /* Expose functions needed outside module*/
+    return {
+      getCurrentHhMmSs:getCurrentHhMmSs,
+    }
+  }();
+
+  const updateClock = () => { elementCurrentClockTime.value = DateTimeUtilities.getCurrentHhMmSs(new Date()); };
+  var clockIntervalId = setInterval(updateClock, 1000);
+
+  var mainLoopIntervalId = null;
+  var stopwatchLastStartedTime = Date.now();
+  var stopwatchLastStoppedTime = Date.now();
+
+  elementStartStopButton.addEventListener("click", startPausePushed);
+  var startStopState = "stopped";
+  function startPausePushed() {
+    if(startStopState === "stopped") {
+      stopwatchLastStartedTime = Date.now() - (stopwatchLastStoppedTime - stopwatchLastStartedTime);
+      elementStartStopButton.value = "Stop";
+      mainLoopIntervalId = setInterval(updateLoopMain, 8); /*approx 120fps+ ought to be enough for anyone*/
+      startStopState = "started";
+      console.log("Happened");
+    } else {
+      stopwatchLastStoppedTime = Date.now();
+      clearInterval(mainLoopIntervalId);
+      elementStartStopButton.value = "Start";
+      startStopState = "stopped";
+    }
+  }
+
+  // function getCurrentValueMs(currentCounterMs) {
+  //   if (elementInputLapLength.value > 0 && elementInputLapGap.value > 0) {
+  //     var lapLenVal = elementInputLapLength.value * 1000; /* Just seconds for now */
+  //     var lapGapVal = elementInputLapGap.value * 1000; /* Just seconds for now */
+  //     var lapAnGapRemainder = currentCounterMs % (lapLenVal + lapGapVal);
+  //     if(lapAnGapRemainder < lapLenVal) {
+  //       return lapAnGapRemainder;
+  //     }
+  //     return 0;
+  //   }
+  //   return currentCounterMs;
+  // }
+  function millisecondsToDisplayString(inputMs) {
+    return new Date(inputMs).toISOString().slice(11,21);
+  }
+  const updateLoopMain = () => {
+    var nextValueMs = Date.now() - stopwatchLastStartedTime;
+    elementTotalCounter.innerText = millisecondsToDisplayString(nextValueMs);
+
+    if(elementInputLapLength.value > 0 && elementInputLapGap.value > 0 && elementInputSetOfLapsLength.value > 0 && elementInputSetOfLapsGap.value > 0) {
+      var lapLenVal = elementInputLapLength.value * 1000; /* Just seconds for now */
+      var lapGapVal = elementInputLapGap.value * 1000; /* Just seconds for now */
+      var setLenVal = elementInputSetOfLapsLength.value * (lapLenVal + lapGapVal) - lapGapVal;
+      var setGapVal = elementInputSetOfLapsGap.value * 1000; /* Just seconds for now */
+
+      var setAndGapRemainder = nextValueMs % (setLenVal + setGapVal);
+      if (setAndGapRemainder < setLenVal) {
+        elementDisplayOfCurrentSetCounter.innerText = millisecondsToDisplayString(setLenVal - setAndGapRemainder);
+        elementDisplayOfSetGapCounter.innerText = "00:00:00.0";
+
+        /* Repeat of section below. Not very dry, but also eh only 11 lines for now. */
+        var lapAnGapRemainder = setAndGapRemainder % (lapLenVal + lapGapVal);
+        if(lapAnGapRemainder < lapLenVal) {
+          elementDisplayOfCurrentCounter.innerText = millisecondsToDisplayString(lapLenVal - lapAnGapRemainder);
+          elementDisplayOfGapCounter.innerText = "00:00:00.0";
+        } else {
+          elementDisplayOfCurrentCounter.innerText = "00:00:00.0";
+          elementDisplayOfGapCounter.innerText = millisecondsToDisplayString(lapGapVal - (lapAnGapRemainder - lapLenVal));
+        }
+
+      } else {
+        elementDisplayOfCurrentCounter.innerText = "00:00:00.0";
+        elementDisplayOfGapCounter.innerText = "00:00:00.0";
+        elementDisplayOfCurrentSetCounter.innerText = "00:00:00.0";
+        elementDisplayOfSetGapCounter.innerText = millisecondsToDisplayString(setGapVal - (setAndGapRemainder - setLenVal));
+      }
+    }
+    else {
+      if (elementInputLapLength.value > 0 && elementInputLapGap.value > 0) {
+        var lapLenVal = elementInputLapLength.value * 1000; /* Just seconds for now */
+        var lapGapVal = elementInputLapGap.value * 1000; /* Just seconds for now */
+        var lapAnGapRemainder = nextValueMs % (lapLenVal + lapGapVal);
+        if(lapAnGapRemainder < lapLenVal) {
+          elementDisplayOfCurrentCounter.innerText = millisecondsToDisplayString(lapLenVal - lapAnGapRemainder);
+          elementDisplayOfGapCounter.innerText = "00:00:00.0";
+        } else {
+          elementDisplayOfCurrentCounter.innerText = "00:00:00.0";
+          elementDisplayOfGapCounter.innerText = millisecondsToDisplayString(lapGapVal - (lapAnGapRemainder - lapLenVal));
+        }
+      } /*else {
+        elementDisplayOfCurrentCounter.innerText = millisecondsToDisplayString(nextValueMs);
+      }*/
+    }
+  };
+  // updateClock();
+
+  elementResetButton.addEventListener("click", resetPushed);
+  function resetPushed() {
+    startStopState = "stopped";
+    clearInterval(mainLoopIntervalId);
+    stopwatchLastStartedTime = Date.now();
+    stopwatchLastStoppedTime = Date.now();
+    elementTotalCounter.innerText = "00:00:00.0";
+
+    elementDisplayOfCurrentCounter.innerText = "00:00:00.0";
+
+    elementDisplayOfGapCounter.innerText = "00:00:00.0"
+    elementDisplayOfCurrentSetCounter.innerText = "00:00:00.0"
+    elementDisplayOfSetGapCounter.innerText = "00:00:00.0"
+    elementStartStopButton.value = "Start";
+  }
+</script>
+<style></style>
+  <style type="text/tailwindcss">
+    @theme {
+      --breakpoint-3xl: 104rem;
+    }
+  </style>
+</html>
