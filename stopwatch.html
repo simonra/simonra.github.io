@@ -15,20 +15,20 @@
 
       <div id="wrapper-preset-laps-config" class="w-120 text-3xl mb-4 grid grid-cols-[75%_25%] gap-1">
         <div id="wrapper-lap-length" class="col-span-full grid grid-cols-subgrid">
-          <label for="input-lap-length" class="col-1">Lap length:</label>
-          <input type="number" id="input-lap-length" min="0" class="col-2" />
+          <label for="input-lap-length" class="col-1">Lap length (s):</label>
+          <input type="number" id="input-lap-length" min="0" value="60" class="col-2" />
         </div>
         <div id="wrapper-lap-gap" class="col-span-full grid grid-cols-subgrid">
-          <label for="input-lap-gap" class="col-1">Gap between laps:</label>
-          <input type="number" id="input-lap-gap" min="0" class="col-2" />
+          <label for="input-lap-gap" class="col-1">Gap between laps (s):</label>
+          <input type="number" id="input-lap-gap" min="0" value="10" class="col-2" />
         </div>
         <div id="wrapper-lap-set-lenght" class="col-span-full grid grid-cols-subgrid">
           <label for="input-set-of-laps-length" class="col-1">Number of laps in set:</label>
-          <input type="number" id="input-set-of-laps-length" min="0" class="col-2" />
+          <input type="number" id="input-set-of-laps-length" min="0" value="5" class="col-2" />
         </div>
         <div id="wrapper-lap-set-gap" class="col-span-full grid grid-cols-subgrid">
-          <label for="input-set-of-laps-gap" class="col-1">Gap between sets:</label>
-          <input type="number" id="input-set-of-laps-gap" min="0" class="col-2" />
+          <label for="input-set-of-laps-gap" class="col-1">Gap between sets (s):</label>
+          <input type="number" id="input-set-of-laps-gap" min="0" value="60" class="col-2" />
         </div>
       </div>
 
@@ -53,20 +53,20 @@
         <p id="display-of-total-counter" class="text-9xl font-mono">00:00:00.0</p>
       </div>
 
-      <div id="wrapper-current-counter" class="w-200 text-center border-4 border-sky-500/100  mt-4 3xl:mt-0 collapse">
+      <div id="wrapper-current-counter" class="w-200 text-center border-4 border-sky-500/100  mt-4 3xl:mt-0">
         <p class="text-5xl">Current Lap</p>
         <p id="display-of-current-counter" class="text-9xl font-mono">00:00:00.0</p>
       </div>
-      <div id="wrapper-gap-counter" class="w-200 text-center border-4 border-orange-500/100  mt-4 3xl:mt-0 collapse">
+      <div id="wrapper-gap-counter" class="w-200 text-center border-4 border-orange-500/100  mt-4 3xl:mt-0">
         <p class="text-5xl">Current Gap</p>
         <p id="display-of-gap-counter" class="text-9xl font-mono">00:00:00.0</p>
       </div>
 
-      <div id="wrapper-current-set-counter" class="w-200 text-center border-4 border-teal-500/100  mt-4 3xl:mt-0 collapse">
+      <div id="wrapper-current-set-counter" class="w-200 text-center border-4 border-teal-500/100  mt-4 3xl:mt-0">
         <p class="text-5xl">Current Set</p>
         <p id="display-of-current-set-counter" class="text-9xl font-mono">00:00:00.0</p>
       </div>
-      <div id="wrapper-set-gap-counter" class="w-200 text-center border-4 border-orange-500/100  mt-4 3xl:m-0 collapse">
+      <div id="wrapper-set-gap-counter" class="w-200 text-center border-4 border-orange-500/100  mt-4 3xl:m-0">
         <p class="text-5xl">Current Set Gap</p>
         <p id="display-of-set-gap-counter" class="text-9xl font-mono">00:00:00.0</p>
       </div>
